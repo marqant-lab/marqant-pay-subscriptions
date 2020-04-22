@@ -3,6 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions;
 
 use Illuminate\Support\ServiceProvider;
+use Marqant\MarqantPay\Models\Provider;
 use Marqant\MarqantPay\Commands\MigrationsForBillable;
 
 class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     {
         $this->setupMigrations();
         // $this->setupCommands();
+
+        $this->setupRelationships();
     }
 
     /**
@@ -60,5 +63,16 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
                 MigrationsForBillable::class,
             ]);
         }
+    }
+
+    /**
+     * Setup relationships in boot method.
+     */
+    private function setupRelationships()
+    {
+        // extend Provider model
+        Provider::addDynamicRelation('plans', function (Provider $model) {
+            return $model->belongsToMany(\Marqant\MarqantPaySubscriptions\Models\Plan::class);
+        });
     }
 }
