@@ -9,5 +9,18 @@
             "email": "thomas@du.digital"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Marqant\\MarqantPaySubscriptions\\Seeds\\": "database/seeds/",
+            "Marqant\\MarqantPaySubscriptions\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Marqant\\MarqantPaySubscriptions\\MarqantPaySubscriptionsServiceProvider"
+            ]
+        }
+    }
 }
