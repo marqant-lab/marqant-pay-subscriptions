@@ -1,0 +1,13 @@
+{
+    "name": "marqant/marqant-pay-subscriptions",
+    "description": "Extension package for the marqant/marqant-pay package, providing recurring billing through subscriptions.",
+    "type": "package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Venturini",
+            "email": "thomas@du.digital"
+        }
+    ],
+    "require": {}
+}
