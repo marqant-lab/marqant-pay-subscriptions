@@ -4,7 +4,7 @@ namespace Marqant\MarqantPaySubscriptions;
 
 use Illuminate\Support\ServiceProvider;
 use Marqant\MarqantPay\Models\Provider;
-use Marqant\MarqantPay\Commands\MigrationsForBillable;
+use Marqant\MarqantPaySubscriptions\Commands\MigrationsForSubscriptions;
 
 class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
 {
@@ -25,8 +25,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->setupMigrations();
-        // $this->setupCommands();
+        // $this->setupMigrations();
+        $this->setupCommands();
 
         $this->setupRelationships();
     }
@@ -60,7 +60,7 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                MigrationsForBillable::class,
+                MigrationsForSubscriptions::class,
             ]);
         }
     }
