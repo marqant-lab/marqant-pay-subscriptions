@@ -4,6 +4,7 @@ namespace Marqant\MarqantPaySubscriptions;
 
 use Illuminate\Support\ServiceProvider;
 use Marqant\MarqantPay\Models\Provider;
+use Marqant\MarqantPaySubscriptions\Models\Observers\PlanObserver;
 use Marqant\MarqantPaySubscriptions\Commands\MigrationsForSubscriptions;
 
 class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
@@ -29,6 +30,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         $this->setupCommands();
 
         $this->setupRelationships();
+
+        $this->registerObservers();
     }
 
     /**
@@ -74,5 +77,17 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         Provider::addDynamicRelation('plans', function (Provider $model) {
             return $model->belongsToMany(\Marqant\MarqantPaySubscriptions\Models\Plan::class);
         });
+    }
+
+    /**
+     * Setup observers in boot method.
+     */
+    private function registerObservers()
+    {
+        /**
+         * @var \Marqant\MarqantPaySubscriptions\Models\Plan
+         */
+        $PlanModel = app(config('marqant-pay-subscriptions.plan_model'));
+        $PlanModel::observe(PlanObserver::class);
     }
 }

@@ -24,7 +24,7 @@ class {{CLASS_NAME}} extends Migration
             // make {{NAME_1_SINGULAR}}_id column a foreign key
             $table->foreign('{{NAME_1_SINGULAR}}_id')
                 ->references('id')
-                ->on('{{NAME_2_PLURAL}}')
+                ->on('{{NAME_1_PLURAL}}')
                 ->onDelete('cascade');
 
             // create {{NAME_2_SINGULAR}}_id column

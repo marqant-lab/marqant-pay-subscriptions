@@ -4,6 +4,7 @@ namespace Marqant\MarqantPaySubscriptions\Commands;
 
 use Str;
 use File;
+use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Finder\SplFileInfo;
@@ -190,7 +191,7 @@ class MigrationsForSubscriptions extends Command
         sort($names);
 
         $table_name = "{$names[0]}_{$names[1]}";
-        $class_name = ucfirst($names[1]) . ucfirst($names[1]);
+        $class_name = ucfirst($names[0]) . ucfirst($names[1]);
 
         $stub_path = $this->getPlanProviderStubPath();
 
@@ -203,10 +204,17 @@ class MigrationsForSubscriptions extends Command
         $stub = str_replace('{{NAME_1_SINGULAR}}', $names[0], $stub);
         $stub = str_replace('{{NAME_2_SINGULAR}}', $names[1], $stub);
 
+        $names = [
+            $plans_table,
+            $provider_table,
+        ];
+        sort($names);
+
         $stub = str_replace('{{NAME_1_PLURAL}}', $names[0], $stub);
         $stub = str_replace('{{NAME_2_PLURAL}}', $names[1], $stub);
 
-        $this->saveMigration($stub, $table_name, "create_{{TABLE}}_table");
+        $this->saveMigration($stub, $table_name, "create_{{TABLE}}_table", Carbon::now()
+            ->addMinute());
     }
 
     /**
@@ -289,17 +297,19 @@ class MigrationsForSubscriptions extends Command
     }
 
     /**
-     * @param string $stub
-     * @param string $table
-     * @param string $file_name_template
+     * @param string                          $stub
+     * @param string                          $table
+     * @param string                          $file_name_template
+     * @param null|\Illuminate\Support\Carbon $Timestamp
      *
      * @return void
      */
-    private function saveMigration(string $stub, string $table, string $file_name_template): void
+    private function saveMigration(string $stub, string $table, string $file_name_template,
+                                   ?Carbon $Timestamp = null): void
     {
         $file_name_template = str_replace('{{TABLE}}', $table, $file_name_template);
 
-        $file_name = $this->getMigrationFileName($table, $file_name_template);
+        $file_name = $this->getMigrationFileName($table, $file_name_template, $Timestamp);
 
         $path = database_path('migrations');
 
@@ -309,22 +319,33 @@ class MigrationsForSubscriptions extends Command
     }
 
     /**
-     * @return string
-     */
-    private function getMigrationPrefix(): string
-    {
-        return date('Y_m_d_His');
-    }
-
-    /**
-     * @param string $table
-     * @param string $file_name_template
+     * @param null|\Illuminate\Support\Carbon $Timestamp
      *
      * @return string
      */
-    private function getMigrationFileName(string $table, string $file_name_template): string
+    private function getMigrationPrefix(?Carbon $Timestamp = null): string
     {
-        $prefix = $this->getMigrationPrefix();
+        $format = 'Y_m_d_His';
+
+        if ($Timestamp) {
+            return $Timestamp->format($format);
+        }
+
+        return Carbon::now()
+            ->format($format);
+    }
+
+    /**
+     * @param string                          $table
+     * @param string                          $file_name_template
+     *
+     * @param \Illuminate\Support\Carbon|null $Timestamp
+     *
+     * @return string
+     */
+    private function getMigrationFileName(string $table, string $file_name_template, ?Carbon $Timestamp = null): string
+    {
+        $prefix = $this->getMigrationPrefix($Timestamp);
 
         $file_name = str_replace('{{TABLE}}', $table, $file_name_template);
 
