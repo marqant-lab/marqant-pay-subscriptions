@@ -2,8 +2,37 @@
 
 namespace Marqant\MarqantPaySubscriptions\Traits;
 
+use Illuminate\Database\Eloquent\Model;
+use Marqant\MarqantPay\Services\MarqantPay;
+use Marqant\MarqantPay\Models\Relationships\BelongsToManyProviders;
+
 trait RepresentsPlan
 {
+    use BelongsToManyProviders;
+
+    /*
+     |--------------------------------------------------------------------------
+     | Payment Gateway Abstraction
+     |--------------------------------------------------------------------------
+     |
+     | In this section you will find all proxy methods to the payment provider
+     | gateway.
+     |
+     */
+
+    /**
+     * Create plan on the provider end.
+     *
+     * @param string $provider
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     * @throws \Exception
+     */
+    public function createPlan(string $provider): Model
+    {
+        return MarqantPay::createPlan($this, $provider);
+    }
+
     /*
      |--------------------------------------------------------------------------
      | Scopes
