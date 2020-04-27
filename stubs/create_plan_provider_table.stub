@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePlanProviderPivotTable extends Migration
+class {{CLASS_NAME}} extends Migration
 {
     /**
      * Run the migrations.
@@ -12,33 +12,33 @@ class CreatePlanProviderPivotTable extends Migration
      */
     public function up()
     {
-        Schema::create('plan_provider', function (Blueprint $table) {
-            // create plan_id column
+        Schema::create('{{TABLE_NAME}}', function (Blueprint $table) {
+            // create {{NAME_1_SINGULAR}}_id column
             // ! make sure to use the same column type
             //   as in the referenced column
             //   e.g. integer or bigInteger
-            $table->bigInteger('plan_id')
+            $table->bigInteger('{{NAME_1_SINGULAR}}_id')
                 ->unsigned()
                 ->nullable();
 
-            // make plan_id column a foreign key
-            $table->foreign('plan_id')
+            // make {{NAME_1_SINGULAR}}_id column a foreign key
+            $table->foreign('{{NAME_1_SINGULAR}}_id')
                 ->references('id')
-                ->on('plans')
+                ->on('{{NAME_2_PLURAL}}')
                 ->onDelete('cascade');
 
-            // create provider_id column
+            // create {{NAME_2_SINGULAR}}_id column
             // ! make sure to use the same column type
             //   as in the referenced column
             //   e.g. integer or bigInteger
-            $table->bigInteger('provider_id')
+            $table->bigInteger('{{NAME_2_SINGULAR}}_id')
                 ->unsigned()
                 ->nullable();
 
-            // make provider_id column a foreign key
-            $table->foreign('provider_id')
+            // make {{NAME_2_SINGULAR}}_id column a foreign key
+            $table->foreign('{{NAME_2_SINGULAR}}_id')
                 ->references('id')
-                ->on('providers')
+                ->on('{{NAME_2_PLURAL}}')
                 ->onDelete('cascade');
         });
     }
@@ -50,6 +50,6 @@ class CreatePlanProviderPivotTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('plan_provider');
+        Schema::dropIfExists('{{TABLE_NAME}}');
     }
 }

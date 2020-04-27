@@ -2,10 +2,12 @@
 
 namespace Marqant\MarqantPaySubscriptions\Commands;
 
+use Str;
 use File;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Finder\SplFileInfo;
+use Marqant\MarqantPay\Traits\RepresentsProvider;
 use Marqant\MarqantPaySubscriptions\Traits\RepresentsPlan;
 
 class MigrationsForSubscriptions extends Command
@@ -41,15 +43,44 @@ class MigrationsForSubscriptions extends Command
      */
     public function handle()
     {
+        // create migrations for the plans
+        $this->handlePlans();
+
+        // create migrations for plan_provider relationship
+        $this->handlePlanProvider();
+    }
+
+    /**
+     * Method to handle te part for the plans.
+     *
+     * @return void
+     */
+    private function handlePlans(): void
+    {
         $Plan = $this->getPlansModel();
 
         $this->makeMigrationForPlans($Plan);
 
-        $this->info('Done! 👍');
+        $this->info('Plans done! 👍');
     }
 
     /**
-     * Get billable argument from input and resolve it to a model with the Billable trait attached.
+     * Method to handle the part for the plans and provider many to many relationship.
+     *
+     * @return void
+     */
+    private function handlePlanProvider(): void
+    {
+        $Plan = $this->getPlansModel();
+        $Provider = $this->getProviderModel();
+
+        $this->makeMigrationForPlanProvider($Plan, $Provider);
+
+        $this->info('Plan Provider Relationship done too! 👍');
+    }
+
+    /**
+     * Get Plan model from configuration.
      *
      * @return Model
      */
@@ -63,7 +94,21 @@ class MigrationsForSubscriptions extends Command
     }
 
     /**
-     * Ensure, that the given model actually uses the Billable trait.
+     * Get Provider model from configuration.
+     *
+     * @return Model
+     */
+    private function getProviderModel()
+    {
+        $Provider = app(config('marqant-pay.provider_model'));
+
+        $this->checkIfModelRepresentsProvider($Provider);
+
+        return $Provider;
+    }
+
+    /**
+     * Ensure, that the given model actually uses the RepresentsPlan trait.
      * If it doesn't, print out an error message and exit the command.
      *
      * @param \Illuminate\Database\Eloquent\Model $Plan
@@ -74,6 +119,22 @@ class MigrationsForSubscriptions extends Command
 
         if (!collect($traits)->contains(RepresentsPlan::class)) {
             $this->error('The given model is not a Plan.');
+            exit(1);
+        }
+    }
+
+    /**
+     * Ensure, that the given model actually uses the RepresentsProvider trait.
+     * If it doesn't, print out an error message and exit the command.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $Plan
+     */
+    private function checkIfModelRepresentsProvider(Model $Plan): void
+    {
+        $traits = class_uses($Plan);
+
+        if (!collect($traits)->contains(RepresentsProvider::class)) {
+            $this->error('The given model is not a Provider.');
             exit(1);
         }
     }
@@ -109,11 +170,73 @@ class MigrationsForSubscriptions extends Command
     }
 
     /**
+     * @param \Illuminate\Database\Eloquent\Model $Plan
+     * @param \Illuminate\Database\Eloquent\Model $Provider
+     *
+     * @return void
+     */
+    private function makeMigrationForPlanProvider(Model $Plan, Model $Provider)
+    {
+        $plans_table = $this->getTableOfModel($Plan);
+        $provider_table = $this->getTableOfModel($Provider);
+
+        $plan_singular = $this->getSingular($plans_table);
+        $provider_singular = $this->getSingular($provider_table);
+
+        $names = [
+            $plan_singular,
+            $provider_singular,
+        ];
+        sort($names);
+
+        $table_name = "{$names[0]}_{$names[1]}";
+        $class_name = ucfirst($names[1]) . ucfirst($names[1]);
+
+        $stub_path = $this->getPlanProviderStubPath();
+
+        $stub = $this->getStub($stub_path);
+
+        $this->replaceClassName($stub, $class_name, "Create{{TABLE}}Table");
+
+        $this->replaceTableName($stub, $table_name);
+
+        $stub = str_replace('{{NAME_1_SINGULAR}}', $names[0], $stub);
+        $stub = str_replace('{{NAME_2_SINGULAR}}', $names[1], $stub);
+
+        $stub = str_replace('{{NAME_1_PLURAL}}', $names[0], $stub);
+        $stub = str_replace('{{NAME_2_PLURAL}}', $names[1], $stub);
+
+        $this->saveMigration($stub, $table_name, "create_{{TABLE}}_table");
+    }
+
+    /**
+     * Return singular of a plural.
+     *
+     * @param string $plural
+     *
+     * @return string
+     */
+    private function getSingular(string $plural): string
+    {
+        return Str::singular($plural);
+    }
+
+    /**
      * @return string
      */
     private function getPlanStubPath(): string
     {
-        $stub_path = base_path('vendor/marqant/marqant-pay-subscriptions/stubs/create_plans_table.stub');
+        $stub_path = base_path('vendor/marqant-lab/marqant-pay-subscriptions/stubs/create_plans_table.stub');
+
+        return $stub_path;
+    }
+
+    /**
+     * @return string
+     */
+    private function getPlanProviderStubPath(): string
+    {
+        $stub_path = base_path('vendor/marqant-lab/marqant-pay-subscriptions/stubs/create_plan_provider_table.stub');
 
         return $stub_path;
     }
@@ -215,7 +338,7 @@ class MigrationsForSubscriptions extends Command
      */
     private function preventDuplicates(string $path, string $table, string $file_name_template)
     {
-        $file = str_replace('{{TABLE}}', $table, $file_name_template);
+        $file = str_replace('{{TABLE}}', $table, $file_name_template . '.php');
 
         $files = collect(File::files($path))
             ->map(function (SplFileInfo $file) {
