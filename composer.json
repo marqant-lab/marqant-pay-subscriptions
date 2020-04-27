@@ -1,5 +1,5 @@
 {
-    "name": "marqant/marqant-pay-subscriptions",
+    "name": "marqant-lab/marqant-pay-subscriptions",
     "description": "Extension package for the marqant/marqant-pay package, providing recurring billing through subscriptions.",
     "type": "package",
     "license": "MIT",
