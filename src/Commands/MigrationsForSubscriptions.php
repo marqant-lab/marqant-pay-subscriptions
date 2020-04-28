@@ -93,9 +93,9 @@ class MigrationsForSubscriptions extends Command
      */
     private function handleSubscriptions(): void
     {
-        $Subscription = $this->getSubscriptionModel();
+        $Plan = $this->getPlansModel();
 
-        $this->makeMigrationForSubscriptions($Subscription);
+        $this->makeMigrationForSubscriptions($Plan);
 
         $this->info('Subscriptions done too! 👍');
     }
@@ -110,20 +110,6 @@ class MigrationsForSubscriptions extends Command
         $Plan = app(config('marqant-pay-subscriptions.plan_model'));
 
         $this->checkIfModelRepresentsPlan($Plan);
-
-        return $Plan;
-    }
-
-    /**
-     * Get Subscription model from configuration.
-     *
-     * @return Model
-     */
-    private function getSubscriptionModel()
-    {
-        $Plan = app(config('marqant-pay-subscriptions.subscription_model'));
-
-        $this->checkIfModelRepresentsSubscription($Plan);
 
         return $Plan;
     }
@@ -293,7 +279,8 @@ class MigrationsForSubscriptions extends Command
         $stub = str_replace('{{PLAN}}', $plan_singular, $stub);
         $stub = str_replace('{{PLANS}}', $plans_table, $stub);
 
-        $this->saveMigration($stub, $table, "create_{{TABLE}}_table");
+        $this->saveMigration($stub, $table, "create_{{TABLE}}_table", Carbon::now()
+            ->addMinute());
     }
 
     /**

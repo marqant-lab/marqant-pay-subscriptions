@@ -22,4 +22,5 @@ class Subscription extends Pivot
      * @var array
      */
     protected $guarded = ['id'];
+
 }

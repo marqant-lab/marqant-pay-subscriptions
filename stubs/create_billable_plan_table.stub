@@ -33,6 +33,9 @@ class {{CLASS_NAME}} extends Migration
                 ->references('id')
                 ->on('{{PLANS}}')
                 ->onDelete('cascade');
+
+
+            $table->timestamps();
         });
     }
 
