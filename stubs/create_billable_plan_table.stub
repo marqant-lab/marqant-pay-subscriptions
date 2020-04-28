@@ -1,0 +1,48 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class {{CLASS_NAME}} extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('{{TABLE_NAME}}', function (Blueprint $table) {
+
+            $table->bigIncrements('id');
+
+            // setup polymorphic relationship with billable
+            $table->bigInteger('billable_id');
+            $table->string('billable_type');
+
+            // create {{PLAN}}_id column
+            // ! make sure to use the same column type
+            //   as in the referenced column
+            //   e.g. integer or bigInteger
+            $table->bigInteger('{{PLAN}}_id')
+                ->unsigned()
+                ->nullable();
+
+            // make {{PLAN}}_id column a foreign key
+            $table->foreign('{{PLAN}}_id')
+                ->references('id')
+                ->on('{{PLANS}}')
+                ->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('{{TABLE_NAME}}');
+    }
+}

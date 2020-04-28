@@ -1,6 +1,6 @@
 <?php
 
-namespace Marqant\MarqantPay\Models\Relationships;
+namespace Marqant\MarqantPaySubscriptions\Models\Relationships;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

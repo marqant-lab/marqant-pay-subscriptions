@@ -1,16 +1,18 @@
 <?php
 
-namespace Marqant\MarqantPay\Models;
+namespace Marqant\MarqantPaySubscriptions\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Marqant\MarqantPay\Traits\RepresentsSubscription;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Marqant\MarqantPaySubscriptions\Traits\RepresentsSubscription;
 
 /**
  * Class Subscription
  *
  * @mixin \Eloquent
  */
-class Subscription extends Model
+// TODO: Find out if I have to extend MorphPivot instead of Pivot to make the MorphTo relationships work. Otherwise
+//       this should be fine.
+class Subscription extends Pivot
 {
     use RepresentsSubscription;
 
