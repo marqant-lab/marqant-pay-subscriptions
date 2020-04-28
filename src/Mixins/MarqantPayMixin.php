@@ -26,7 +26,11 @@ class MarqantPayMixin
         return function (Model $Billable, string $plan) {
             $Gateway = self::resolveProviderGateway($Billable);
 
-            $Gateway->subscribe($Billable, $plan);
+            $Plan = app(config('marqant-pay-subscriptions.plan_model'))
+                ->where('slug', $plan)
+                ->firstOrFail();
+
+            $Gateway->subscribe($Billable, $Plan);
 
             return $Billable;
         };
