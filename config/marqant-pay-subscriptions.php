@@ -24,4 +24,17 @@ return [
 
     'plan_model' => \Marqant\MarqantPaySubscriptions\Models\Plan::class,
 
+    /*
+     |--------------------------------------------------------------------------
+     | Subscription Model
+     |--------------------------------------------------------------------------
+     |
+     | This is the model used as representation of the subscriptions at your
+     | payment provider. Subscriptions as well are managed mostly through the
+     | gateways.
+     |
+     */
+
+    'subscription_model' => \Marqant\MarqantPaySubscriptions\Models\Subscription::class,
+
 ];
