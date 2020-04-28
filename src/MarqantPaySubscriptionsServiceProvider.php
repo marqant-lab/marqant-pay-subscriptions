@@ -4,7 +4,9 @@ namespace Marqant\MarqantPaySubscriptions;
 
 use Illuminate\Support\ServiceProvider;
 use Marqant\MarqantPay\Models\Provider;
-use Marqant\MarqantPay\Commands\MigrationsForBillable;
+use Marqant\MarqantPay\Services\MarqantPay;
+use Marqant\MarqantPaySubscriptions\Mixins\MarqantPayMixin;
+use Marqant\MarqantPaySubscriptions\Commands\MigrationsForSubscriptions;
 
 class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
 {
@@ -12,10 +14,13 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      * Register any application services.
      *
      * @return void
+     * @throws \ReflectionException
      */
     public function register()
     {
         $this->setupConfig();
+
+        $this->setupMixins();
     }
 
     /**
@@ -25,8 +30,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->setupMigrations();
-        // $this->setupCommands();
+        // $this->setupMigrations();
+        $this->setupCommands();
 
         $this->setupRelationships();
     }
@@ -60,7 +65,7 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                MigrationsForBillable::class,
+                MigrationsForSubscriptions::class,
             ]);
         }
     }
@@ -74,5 +79,17 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         Provider::addDynamicRelation('plans', function (Provider $model) {
             return $model->belongsToMany(\Marqant\MarqantPaySubscriptions\Models\Plan::class);
         });
+    }
+
+    /**
+     * Setup mixins to extend the baspackage through the Macroable trait in register method.
+     *
+     * @return void
+     *
+     * @throws \ReflectionException
+     */
+    private function setupMixins()
+    {
+        MarqantPay::mixin(app(MarqantPayMixin::class));
     }
 }
