@@ -9,7 +9,9 @@
             "email": "thomas@du.digital"
         }
     ],
-    "require": {},
+    "require": {
+        "marqant-lab/marqant-pay": "~0.0.1"
+    },
     "autoload": {
         "psr-4": {
             "Marqant\\MarqantPaySubscriptions\\Seeds\\": "database/seeds/",
