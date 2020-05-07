@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @mixin \Marqant\MarqantPay\Services\MarqantPay
  */
-class MarqantPayMixin
+class MarqantPaySubscriptionsMixin
 {
     /**
      * Create a subscription for a billable on a given provider.

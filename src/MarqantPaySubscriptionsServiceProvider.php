@@ -5,7 +5,7 @@ namespace Marqant\MarqantPaySubscriptions;
 use Illuminate\Support\ServiceProvider;
 use Marqant\MarqantPay\Models\Provider;
 use Marqant\MarqantPay\Services\MarqantPay;
-use Marqant\MarqantPaySubscriptions\Mixins\MarqantPayMixin;
+use Marqant\MarqantPaySubscriptions\Mixins\MarqantPaySubscriptionsMixin;
 use Marqant\MarqantPaySubscriptions\Commands\MigrationsForSubscriptions;
 
 class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
@@ -82,7 +82,7 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     }
 
     /**
-     * Setup mixins to extend the baspackage through the Macroable trait in register method.
+     * Setup mixins to extend the base-package through the Macroable trait in register method.
      *
      * @return void
      *
@@ -90,6 +90,6 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      */
     private function setupMixins()
     {
-        MarqantPay::mixin(app(MarqantPayMixin::class));
+        MarqantPay::mixin(app(MarqantPaySubscriptionsMixin::class));
     }
 }
