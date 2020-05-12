@@ -28,7 +28,7 @@ trait RepresentsPlan
      * @return \Illuminate\Database\Eloquent\Model
      * @throws \Exception
      */
-    public function createPlan(string $provider): Model
+    public function createPlan(string $provider = null): Model
     {
         return MarqantPay::createPlan($this, $provider);
     }
