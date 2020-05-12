@@ -35,4 +35,27 @@ class MarqantPaySubscriptionsMixin
             return $Billable;
         };
     }
+
+    /**
+     * Create a plan either on the provider or just in our database.
+     *
+     * @return \Closure
+     */
+    public static function createPlan(): \Closure
+    {
+        /**
+         * Create the plan on the provider end.
+         *
+         * @param \Illuminate\Database\Eloquent\Model $Plan
+         * @param string                              $provider
+         *
+         * @return \Illuminate\Database\Eloquent\Model
+         * @throws \Exception
+         */
+        return function (Model $Plan, string $provider): Model {
+            $ProviderGateway = self::resolveProviderGatewayFromString($provider);
+
+            return $ProviderGateway->createPlan($Plan);
+        };
+    }
 }
