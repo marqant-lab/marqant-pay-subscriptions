@@ -3,7 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions\Traits;
 
 use Str;
-use Marqant\MarqantPay\Models\Relationships\BelongsToManyBillables;
+use Marqant\MarqantPay\Models\Relationships\BelongsToBillable;
 use Marqant\MarqantPaySubscriptions\Models\Relationships\BelongsToPlan;
 
 /**
@@ -16,7 +16,7 @@ use Marqant\MarqantPaySubscriptions\Models\Relationships\BelongsToPlan;
 trait RepresentsSubscription
 {
     use BelongsToPlan;
-    use BelongsToManyBillables;
+    use BelongsToBillable;
 
     /**
      * Indicates if the IDs are auto-incrementing.

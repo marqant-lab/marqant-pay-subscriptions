@@ -16,6 +16,9 @@ class {{CLASS_NAME}} extends Migration
 
             $table->bigIncrements('id');
 
+            $table->date('last_charged')
+                ->nullable();
+
             // setup polymorphic relationship with billable
             $table->bigInteger('billable_id');
             $table->string('billable_type');

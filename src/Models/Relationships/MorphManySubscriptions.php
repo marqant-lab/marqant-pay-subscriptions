@@ -2,7 +2,7 @@
 
 namespace Marqant\MarqantPaySubscriptions\Models\Relationships;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Trait HasManySubscriptions
@@ -11,17 +11,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @mixin \Eloquent
  */
-trait HasManySubscriptions
+trait MorphManySubscriptions
 {
     /**
      * Establishes a relationships with the subscription model from the config.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function subscriptions(): HasMany
+    public function subscriptions(): MorphMany
     {
         $model = config('marqant-pay-subscriptions.subscription_model');
 
-        return $this->hasMany($model);
+        return $this->morphMany($model, 'billable');
     }
 }

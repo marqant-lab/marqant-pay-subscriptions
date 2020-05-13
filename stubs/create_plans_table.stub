@@ -24,6 +24,8 @@ class {{CLASS_NAME}} extends Migration
             $table->string('type');
             $table->boolean('active')
                 ->default(false);
+            $table->string('provider')
+                ->nullable();
 
             $table->timestamps();
         });

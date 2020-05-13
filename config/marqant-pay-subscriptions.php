@@ -58,4 +58,20 @@ return [
      */
 
     'subscription_handler' => null,
+
+    /*
+     |--------------------------------------------------------------------------
+     | Billing Cycles
+     |--------------------------------------------------------------------------
+     |
+     | If you are using a custom subscription handler you have to manage your
+     | the billing cycles of your app on your own. Each billing cycle has it's
+     | own handler class which will be called through the subscription handler.
+     | To add new billing cycles you just have to add your own handler in here.
+     |
+     */
+
+    'billing_cycles' => [
+        'monthly' => \Marqant\MarqantPaySubscriptions\BillingCycles\Monthly::class,
+    ],
 ];

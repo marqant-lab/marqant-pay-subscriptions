@@ -106,4 +106,36 @@ class MarqantPaySubscriptionsMixin
         };
     }
 
+    /**
+     * Expose runBillingCycle method to MarqantPay service through this mixin.
+     *
+     * @return \Closure
+     */
+    public static function runBillingCycle(): \Closure
+    {
+        /**
+         * Run the billing cycle for all billables that are subscribed to a plan that is not managed through the payment
+         * providers, but through a custom handler.
+         *
+         * @param null|string $cycle
+         *
+         * @return void
+         */
+        return function ($cycle = null) {
+            /**
+             * @var \Marqant\MarqantPaySubscriptions\Services\SubscriptionsHandler $SubscriptionHandler
+             */
+
+            // get subscription handler from config
+            $SubscriptionHandler = config('marqant-pay-subscriptions.subscription_handler', false);
+            if (!$SubscriptionHandler) {
+                throw new \Exception('No subscription handler set up.');
+            }
+            $SubscriptionHandler = app($SubscriptionHandler);
+
+            // run the actual method on the subscription handler
+            $SubscriptionHandler->runBillingCycle($cycle);
+        };
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace Marqant\MarqantPaySubscriptions\Tests\Services;
 
+use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPaySubscriptions\Tests\MarqantPaySubscriptionsTestCase;
 
 class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
@@ -99,5 +100,63 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
         $this->assertEmpty($Subscription->stripe_id);
         $this->assertEquals($Billable->id, $Subscription->billable_id);
         $this->assertEquals($Plan->id, $Subscription->plan_id);
+    }
+
+    /**
+     * Test if we can run a billing cycle on the subscriptions, using the subscriptions handler class of this package.
+     *
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function test_run_monthly_billing_cycle_without_provider(): void
+    {
+        /**
+         * @var \Marqant\MarqantPaySubscriptions\Models\Plan $Plan
+         * @var \App\User                                    $Billable
+         */
+        $SubscriptionHandler = \Marqant\MarqantPaySubscriptions\Services\SubscriptionsHandler::class;
+
+        // assert that the subscription handler in the current config is actually the one we just set
+        $this->assertEquals($SubscriptionHandler, config('marqant-pay-subscriptions.subscription_handler'));
+
+        // get monthly plan (comes from the seeders)
+        $Plan = app(config('marqant-pay-subscriptions.plan_model'))
+            ->where('type', 'monthly')
+            ->firstOrFail();
+
+        // assert that the plan is created in our database
+        $this->assertNotNull($Plan->id);
+
+        // assert that the plan has no stripe attributes
+        $this->assertNull($Plan->stripe_id);
+        $this->assertNull($Plan->stripe_product);
+
+        // get billable
+        $Billable = $this->createBillableUser();
+
+        // subscribe billable to plan with given provider
+        $Billable->subscribe($Plan->slug);
+
+        // assert that billable is subscribed in our database
+        $this->assertCount(1, $Billable->subscriptions);
+        $this->assertCount(1, $Plan->subscriptions);
+
+        // assert that all values needed are stored in the database and valid
+        $Subscription = $Billable->subscriptions->first();
+        $this->assertEmpty($Subscription->stripe_id);
+        $this->assertEquals($Billable->id, $Subscription->billable_id);
+        $this->assertEquals($Plan->id, $Subscription->plan_id);
+
+        // now that we have a subscribed billable where everything is set up correctly,
+        // we can try to start a billing cycle through the subscription handler in this package
+        MarqantPay::runBillingCycle('monthly');
+
+        // assert that the subscription was charged, by checking if the last_charged
+        // attribute is set to today (and not null, and a carbon instance 😉)
+        $this->assertNotNull($Subscription->last_charged);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $Subscription->last_charged);
     }
 }

@@ -77,7 +77,7 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     {
         // extend Provider model
         Provider::addDynamicRelation('plans', function (Provider $model) {
-            return $model->belongsToMany(\Marqant\MarqantPaySubscriptions\Models\Plan::class);
+            return $model->belongsToMany(config('marqant-pay-subscriptions.plan_model'));
         });
     }
 

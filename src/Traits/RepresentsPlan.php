@@ -5,9 +5,11 @@ namespace Marqant\MarqantPaySubscriptions\Traits;
 use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPay\Models\Relationships\BelongsToManyProviders;
+use Marqant\MarqantPaySubscriptions\Models\Relationships\HasManySubscriptions;
 
 trait RepresentsPlan
 {
+    use HasManySubscriptions;
     use BelongsToManyProviders;
 
     /*

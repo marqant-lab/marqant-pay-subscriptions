@@ -4,11 +4,11 @@ namespace Marqant\MarqantPaySubscriptions\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
-use Marqant\MarqantPaySubscriptions\Models\Relationships\HasManySubscriptions;
+use Marqant\MarqantPaySubscriptions\Models\Relationships\MorphManySubscriptions;
 
 trait Subscribeable
 {
-    use HasManySubscriptions;
+    use MorphManySubscriptions;
 
     /**
      * Subscribe billable model to a plan.
