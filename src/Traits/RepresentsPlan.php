@@ -2,6 +2,7 @@
 
 namespace Marqant\MarqantPaySubscriptions\Traits;
 
+use Rocky\Eloquent\HasDynamicRelation;
 use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPay\Models\Relationships\BelongsToManyProviders;
@@ -11,6 +12,7 @@ trait RepresentsPlan
 {
     use HasManySubscriptions;
     use BelongsToManyProviders;
+    use HasDynamicRelation;
 
     /*
      |--------------------------------------------------------------------------

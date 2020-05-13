@@ -2,8 +2,9 @@
 
 namespace Marqant\MarqantPaySubscriptions;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\ServiceProvider;
-use Marqant\MarqantPay\Models\Provider;
+use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPaySubscriptions\Mixins\MarqantPaySubscriptionsMixin;
 use Marqant\MarqantPaySubscriptions\Commands\MigrationsForSubscriptions;
@@ -77,10 +78,9 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      */
     private function setupRelationships()
     {
-        // extend Provider model
-        Provider::addDynamicRelation('plans', function (Provider $model) {
-            return $model->belongsToMany(config('marqant-pay-subscriptions.plan_model'));
-        });
+        $this->extendProviderModel();
+        $this->extendPlanModel();
+        $this->extendBillableModels();
     }
 
     /**
@@ -104,5 +104,71 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     private function setupTranslations()
     {
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'marqant-pay-subscriptions');
+    }
+
+    /**
+     * Extend the Provider model from the config.
+     *
+     * @return void
+     */
+    private function extendProviderModel(): void
+    {
+        // extend Provider model
+        $ProviderModel = config('marqant-pay.provider_model');
+        $ProviderModel::addDynamicRelation('plans', function (Model $Provider) {
+            return $Provider->belongsToMany(config('marqant-pay-subscriptions.plan_model'));
+        });
+    }
+
+    /**
+     * Extend the Plan model from the config.
+     *
+     * @return void
+     */
+    private function extendPlanModel(): void
+    {
+        // extend Plan model
+        // - get the model from config
+        // - loop through the billables of the config and add relationships to the Plan model
+        $PlanModel = config('marqant-pay-subscriptions.plan_model');
+        collect(config('marqant-pay.billables'))->each(function ($BillableModel, $method) use ($PlanModel) {
+            /**
+             * @var \Marqant\MarqantPaySubscriptions\Models\Plan $PlanModel
+             */
+
+            // get plural of key as method name
+            $method = Str::plural($method);
+
+            // add the relationship to the model
+            $PlanModel::addDynamicRelation($method, function (Model $Plan) use ($BillableModel) {
+                return $Plan->morphedByMany($BillableModel, 'billable', 'billable_plan')
+                    ->using(config('marqant-pay-subscriptions.subscription_model'));
+            });
+        });
+    }
+
+    /**
+     * Extend the billables from the config.
+     *
+     * @return void
+     */
+    private function extendBillableModels(): void
+    {
+        // extend Billables
+        // - get plans model
+        // - add plans relationship to billables
+        $PlanModel = config('marqant-pay-subscriptions.plan_model');
+        collect(config('marqant-pay.billables'))->each(function ($BillableModel) use ($PlanModel) {
+            /**
+             * @var \App\User $BillableModel
+             */
+            $BillableModel::addDynamicRelation('plans', function (Model $Billable) use ($PlanModel) {
+                /**
+                 * @var \App\User $Billable
+                 */
+                return $Billable->morphToMany($PlanModel, 'billable', 'billable_plan')
+                    ->using(config('marqant-pay-subscriptions.subscription_model'));
+            });
+        });
     }
 }

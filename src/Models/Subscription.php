@@ -2,7 +2,7 @@
 
 namespace Marqant\MarqantPaySubscriptions\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Marqant\MarqantPaySubscriptions\Traits\RepresentsSubscription;
 
 /**
@@ -10,9 +10,7 @@ use Marqant\MarqantPaySubscriptions\Traits\RepresentsSubscription;
  *
  * @mixin \Eloquent
  */
-// TODO: Find out if I have to extend MorphPivot instead of Pivot to make the MorphTo relationships work. Otherwise
-//       this should be fine.
-class Subscription extends Pivot
+class Subscription extends MorphPivot
 {
     use RepresentsSubscription;
 

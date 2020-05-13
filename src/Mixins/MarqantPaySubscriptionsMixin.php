@@ -91,6 +91,12 @@ class MarqantPaySubscriptionsMixin
             // get the plan model from config
             $PlanModel = app(config('marqant-pay-subscriptions.plan_model'));
 
+            // try to restore the plan object if possible
+            $data = json_decode($Plan, true);
+            if ($data) {
+                $Plan = $PlanModel::findOrFail($data['id']);
+            }
+
             // resolve the plan
             if (is_string($Plan)) {
                 $Plan = $PlanModel->where('slug', $Plan)

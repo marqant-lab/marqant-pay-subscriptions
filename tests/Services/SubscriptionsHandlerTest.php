@@ -143,7 +143,9 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
 
         // assert that billable is subscribed in our database
         $this->assertCount(1, $Billable->subscriptions);
-        $this->assertCount(1, $Plan->subscriptions);
+        $this->assertCount(1, $Plan->subscriptions()
+            ->where('billable_id', $Billable->id)
+            ->get());
 
         // assert that all values needed are stored in the database and valid
         $Subscription = $Billable->subscriptions->first();
