@@ -57,10 +57,9 @@ class Monthly extends BillingCycleContract
                     ->get();
 
                 // get the plans of this billable
-                $PlansOfBillable = $SubscriptionsOfBillable->map(function ($Subscription) {
-                    return $Subscription->plan;
-                })
-                    ->keyBy('id');
+                $PlansOfBillable = $Billable->plans()
+                    ->whereIn('plan_id', $Plans->pluck('id'))
+                    ->get();
 
                 // sum the amounts of the plans related to this billable
                 // TODO: make use of the methods from Dimons trait
