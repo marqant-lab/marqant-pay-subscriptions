@@ -149,3 +149,17 @@ class Monthly extends BillingCycleContract
     }
 }
 ```
+
+### Running Custom Billing Cycles
+
+To actually run your billing cycle you need to trigger it in through Laravels schedule.
+
+Add the following to your console kernel, and don't forget to setup cronjob to trigger the schedule on your server 😉
+
+``` 
+// run payment schedule
+$schedule->call(function () {
+    MarqantPay::runBillingCycle('monthly');
+})
+    ->monthly();
+```
