@@ -34,6 +34,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         $this->setupCommands();
 
         $this->setupRelationships();
+
+        $this->setupTranslations();
     }
 
     /**
@@ -91,5 +93,16 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
     private function setupMixins()
     {
         MarqantPay::mixin(app(MarqantPaySubscriptionsMixin::class));
+    }
+
+    /**
+     * Setup the translations for this package.
+     *
+     * @return void
+     *
+     */
+    private function setupTranslations()
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'marqant-pay-subscriptions');
     }
 }

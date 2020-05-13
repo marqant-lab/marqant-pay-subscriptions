@@ -74,4 +74,5 @@ return [
     'billing_cycles' => [
         'monthly' => \Marqant\MarqantPaySubscriptions\BillingCycles\Monthly::class,
     ],
+
 ];

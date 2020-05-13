@@ -46,28 +46,39 @@ class Monthly extends BillingCycleContract
             return $Billables->keyBy('id');
         });
 
-        // TODO: loop through the billing types and create the payments for each billable (see below)
+        // loop through the billing types and create the payments for each billable (see below)
         $BillablesByType->each(function ($Billables) use ($Plans) {
             $Billables->each(function ($Billable) use ($Plans) {
                 // TODO: Move the following into a dispatchable job
 
-                // get the plans of this billable
-                $Plans = $Billable->subscriptions()
+                // get subscriptions
+                $SubscriptionsOfBillable = $Billable->subscriptions()
                     ->whereIn('plan_id', $Plans->pluck('id'))
-                    ->get()
-                    ->map(function ($Subscription) {
-                        return $Subscription->plan;
-                    })
+                    ->get();
+
+                // get the plans of this billable
+                $PlansOfBillable = $SubscriptionsOfBillable->map(function ($Subscription) {
+                    return $Subscription->plan;
+                })
                     ->keyBy('id');
 
                 // sum the amounts of the plans related to this billable
-                $amount = $Plans->sum('amount');
+                // TODO: make use of the methods from Dimons trait
+                $amount = $PlansOfBillable->sum('amount');
 
-                ddi($amount);
+                // get description from translation file
+                $description = trans('marqant-pay-subscriptions::billing.description');
 
-                // TODO: charge the billable once, with the total amount from all the plans he is subscribed to
-                //       - charge net if the billable has a uid
-                //       - charge gross if the billable has NO uid
+                // charge the billable once, with the total amount from all the plans he is subscribed to
+                $Billable->charge($amount, $description);
+
+                // touch the subscriptions
+                $SubscriptionsOfBillable->each(function (\Illuminate\Database\Eloquent\Model $Subscription) {
+                    /**
+                     * @var \Marqant\MarqantPaySubscriptions\Models\Subscription $Subscription
+                     */
+                    $Subscription->touchLastCharged();
+                });
             });
         });
     }

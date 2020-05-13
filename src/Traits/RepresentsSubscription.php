@@ -3,6 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions\Traits;
 
 use Str;
+use Illuminate\Support\Carbon;
 use Marqant\MarqantPay\Models\Relationships\BelongsToBillable;
 use Marqant\MarqantPaySubscriptions\Models\Relationships\BelongsToPlan;
 
@@ -39,5 +40,17 @@ trait RepresentsSubscription
         $plan_singular = Str::singular($plan_table);
 
         return $this->table ?? "billable_{$plan_singular}";
+    }
+
+    /**
+     * Touch the last_charged attribute on the subscription.
+     *
+     * @return bool
+     */
+    public function touchLastCharged(): bool
+    {
+        $this->last_charged = Carbon::now();
+
+        return $this->save();
     }
 }

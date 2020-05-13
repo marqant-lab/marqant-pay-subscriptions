@@ -2,6 +2,7 @@
 
 namespace Marqant\MarqantPaySubscriptions\Tests\Services;
 
+use Illuminate\Support\Carbon;
 use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPaySubscriptions\Tests\MarqantPaySubscriptionsTestCase;
 
@@ -154,9 +155,20 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
         // we can try to start a billing cycle through the subscription handler in this package
         MarqantPay::runBillingCycle('monthly');
 
+        // refresh subscription
+        $Subscription->refresh();
+
         // assert that the subscription was charged, by checking if the last_charged
         // attribute is set to today (and not null, and a carbon instance 😉)
         $this->assertNotNull($Subscription->last_charged);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $Subscription->last_charged);
+        $this->assertStringStartsWith(Carbon::now()
+            ->format('Y-m-d H:i:'), $Subscription->last_charged);
+
+        // assert that there is only one payment made by the billable
+        $this->assertCount(1, $Billable->payments);
+
+        // assert that the payment is succeeded
+        $this->assertEquals('succeeded', $Billable->payments()
+            ->first()->status);
     }
 }
