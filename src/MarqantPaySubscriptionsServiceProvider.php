@@ -31,7 +31,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // $this->setupMigrations();
+        $this->setupMigrations();
+
         $this->setupCommands();
 
         $this->setupRelationships();

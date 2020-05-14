@@ -3,6 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions\Mixins;
 
 use Illuminate\Database\Eloquent\Model;
+use Marqant\MarqantPay\Contracts\PaymentMethodContract;
 
 /**
  * @mixin \Marqant\MarqantPay\Services\MarqantPay
@@ -141,6 +142,39 @@ class MarqantPaySubscriptionsMixin
 
             // run the actual method on the subscription handler
             $SubscriptionHandler->runBillingCycle($cycle);
+        };
+    }
+
+    /**
+     * Expose chargeSubscription method on MarqantPay service.
+     *
+     * @return \Closure
+     */
+    public static function chargeSubscription(): \Closure
+    {
+        /**
+         * Charge a subscription and set the subscription flag to true in database.
+         *
+         * @param \Illuminate\Database\Eloquent\Model                      $Billable
+         * @param int                                                      $amount
+         * @param string                                                   $description
+         * @param null|\Marqant\MarqantPay\Contracts\PaymentMethodContract $PaymentMethod
+         *
+         * @return \Illuminate\Database\Eloquent\Model
+         *
+         * @throws \Exception
+         */
+        return function (Model $Billable, int $amount, string $description,
+                         ?PaymentMethodContract $PaymentMethod = null): Model {
+            $ProviderGateway = self::resolveProviderGateway($Billable, $PaymentMethod);
+
+            // execute normal charge
+            $Payment = $ProviderGateway->charge($Billable, $amount, $description, $PaymentMethod);
+
+            // set the subscription flag to true
+            $Payment->update(['subscription' => true]);
+
+            return $Payment;
         };
     }
 

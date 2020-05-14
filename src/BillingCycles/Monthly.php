@@ -69,7 +69,7 @@ class Monthly extends BillingCycleContract
                 $description = trans('marqant-pay-subscriptions::billing.description');
 
                 // charge the billable once, with the total amount from all the plans he is subscribed to
-                $Billable->charge($amount, $description);
+                $Billable->chargeSubscription($amount, $description);
 
                 // touch the subscriptions
                 $SubscriptionsOfBillable->each(function (\Illuminate\Database\Eloquent\Model $Subscription) {

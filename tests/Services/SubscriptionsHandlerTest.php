@@ -172,5 +172,8 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
         // assert that the payment is succeeded
         $this->assertEquals('succeeded', $Billable->payments()
             ->first()->status);
+
+        // assert that the resulting payment it marked as a subscription charge
+        $this->assertTrue(!!$Billable->payments->first()->subscription);
     }
 }
