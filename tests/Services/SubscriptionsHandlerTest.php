@@ -118,6 +118,12 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
          * @var \Marqant\MarqantPaySubscriptions\Models\Plan $Plan
          * @var \App\User                                    $Billable
          */
+
+        // Update config so we have the marqant-pay.invoice_service
+        // setting set to the PdfInvoice service
+        $PdfInvoiceService = \Marqant\MarqantPayInvoices\Services\PdfInvoice::class;
+        config(['marqant-pay.invoice_service' => $PdfInvoiceService]);
+
         $SubscriptionHandler = \Marqant\MarqantPaySubscriptions\Services\SubscriptionsHandler::class;
 
         // assert that the subscription handler in the current config is actually the one we just set
@@ -175,5 +181,10 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
 
         // assert that the resulting payment it marked as a subscription charge
         $this->assertTrue(!!$Billable->payments->first()->subscription);
+
+        // assert that we can create an invoice for subscriptions
+        $Billable->payments->first()
+            ->createInvoice();
+        $this->assertNotNull($Billable->payments->first()->invoice);
     }
 }
