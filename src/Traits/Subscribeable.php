@@ -27,8 +27,14 @@ trait Subscribeable
      * Charge the subscribeable/billable for a subscription.
      *
      * This method is used in the custom billing cycles.
+     *
+     * @param float                                                    $amount
+     * @param string                                                   $description
+     * @param null|\Marqant\MarqantPay\Contracts\PaymentMethodContract $PaymentMethod
+     *
+     * @return \Illuminate\Database\Eloquent\Model
      */
-    public function chargeSubscription(int $amount, string $description,
+    public function chargeSubscription(float $amount, string $description,
                                        ?PaymentMethodContract $PaymentMethod = null): Model
     {
         return MarqantPay::chargeSubscription($this, $amount, $description, $PaymentMethod);

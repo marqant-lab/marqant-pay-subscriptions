@@ -5,6 +5,7 @@ namespace Marqant\MarqantPaySubscriptions\Traits;
 use Rocky\Eloquent\HasDynamicRelation;
 use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
+use Marqant\MarqantPay\Traits\Attributes\AmountAttribute;
 use Marqant\MarqantPay\Models\Relationships\BelongsToManyProviders;
 use Marqant\MarqantPaySubscriptions\Models\Relationships\HasManySubscriptions;
 
@@ -13,6 +14,7 @@ trait RepresentsPlan
     use HasManySubscriptions;
     use BelongsToManyProviders;
     use HasDynamicRelation;
+    use AmountAttribute;
 
     /*
      |--------------------------------------------------------------------------
@@ -35,28 +37,6 @@ trait RepresentsPlan
     public function createPlan(string $provider = null): Model
     {
         return MarqantPay::createPlan($this, $provider);
-    }
-
-    /*
-     |--------------------------------------------------------------------------
-     | Getters and Setters
-     |--------------------------------------------------------------------------
-     |
-     | In this section you will find the default getters and setters of the plan
-     | model.
-     |
-     */
-
-    /**
-     * Set the amount value. Take a float and store it as integer in the database.
-     *
-     * @param float $value
-     *
-     * @return void
-     */
-    public function setAmountAttribute(float $value): void
-    {
-        $this->attributes['amount'] = $value * 100;
     }
 
     /*

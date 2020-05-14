@@ -156,7 +156,7 @@ class MarqantPaySubscriptionsMixin
          * Charge a subscription and set the subscription flag to true in database.
          *
          * @param \Illuminate\Database\Eloquent\Model                      $Billable
-         * @param int                                                      $amount
+         * @param float                                                    $amount
          * @param string                                                   $description
          * @param null|\Marqant\MarqantPay\Contracts\PaymentMethodContract $PaymentMethod
          *
@@ -164,7 +164,7 @@ class MarqantPaySubscriptionsMixin
          *
          * @throws \Exception
          */
-        return function (Model $Billable, int $amount, string $description,
+        return function (Model $Billable, float $amount, string $description,
                          ?PaymentMethodContract $PaymentMethod = null): Model {
             $ProviderGateway = self::resolveProviderGateway($Billable, $PaymentMethod);
 
