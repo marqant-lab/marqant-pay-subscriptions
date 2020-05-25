@@ -7,11 +7,9 @@ use File;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
-use Marqant\MarqantPay\Traits\Billable;
 use Symfony\Component\Finder\SplFileInfo;
 use Marqant\MarqantPay\Traits\RepresentsProvider;
 use Marqant\MarqantPaySubscriptions\Traits\RepresentsPlan;
-use Marqant\MarqantPaySubscriptions\Traits\RepresentsSubscription;
 
 class MigrationsForSubscriptions extends Command
 {
@@ -20,8 +18,7 @@ class MigrationsForSubscriptions extends Command
      *
      * @var string
      */
-    protected $signature = 'marqant-pay:migrations:subscriptions
-                                {billable : The billable model to create the migrations for.}';
+    protected $signature = 'marqant-pay:migrations:subscriptions';
 
     /**
      * The console command description.
@@ -140,22 +137,6 @@ class MigrationsForSubscriptions extends Command
 
         if (!collect($traits)->contains(RepresentsPlan::class)) {
             $this->error('The given model is not a Plan.');
-            exit(1);
-        }
-    }
-
-    /**
-     * Ensure, that the given model actually uses the RepresentsSubscription trait.
-     * If it doesn't, print out an error message and exit the command.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $Subscription
-     */
-    private function checkIfModelRepresentsSubscription(Model $Subscription): void
-    {
-        $traits = class_uses($Subscription);
-
-        if (!collect($traits)->contains(RepresentsSubscription::class)) {
-            $this->error('The given model is not a Subscription.');
             exit(1);
         }
     }
@@ -281,36 +262,6 @@ class MigrationsForSubscriptions extends Command
 
         $this->saveMigration($stub, $table, "create_{{TABLE}}_table", Carbon::now()
             ->addMinute());
-    }
-
-    /**
-     * Get billable argument from input and resolve it to a model with the Billable trait attached.
-     *
-     * @return Model
-     */
-    private function getBillableModel()
-    {
-        $Billable = app($this->argument('billable'));
-
-        $this->checkIfModelIsBillable($Billable);
-
-        return $Billable;
-    }
-
-    /**
-     * Ensure, that the given model actually uses the Billable trait.
-     * If it doesn't, print out an error message and exit the command.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $Billable
-     */
-    private function checkIfModelIsBillable(Model $Billable): void
-    {
-        $traits = class_uses($Billable);
-
-        if (!collect($traits)->contains(Billable::class)) {
-            $this->error('The given model is not a Billable.');
-            exit(1);
-        }
     }
 
     /**

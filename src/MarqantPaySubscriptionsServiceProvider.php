@@ -3,6 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions;
 
 use Illuminate\Support\Str;
+use Marqant\MarqantPay\Traits\Billable;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Marqant\MarqantPay\Services\MarqantPay;
@@ -160,6 +161,12 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         // - add plans relationship to billables
         $PlanModel = config('marqant-pay-subscriptions.plan_model');
         collect(config('marqant-pay.billables'))->each(function ($BillableModel) use ($PlanModel) {
+            $BillableModel = app($BillableModel);
+            if (!$this->checkIfModelIsBillable($BillableModel)) {
+                throw new \Exception('The given model '
+                    . get_class($BillableModel) . ' is not a Billable. Please make sure that it uses the Billable trait.');
+            }
+
             /**
              * @var \App\User $BillableModel
              */
@@ -171,5 +178,24 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
                     ->using(config('marqant-pay-subscriptions.subscription_model'));
             });
         });
+    }
+
+    /**
+     * Ensure, that the given model actually uses the Billable trait.
+     * If it doesn't, print out an error message and exit.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $Billable
+     *
+     * @return bool
+     */
+    private function checkIfModelIsBillable(Model $Billable): bool
+    {
+        $traits = class_uses($Billable);
+
+        if (!collect($traits)->contains(Billable::class)) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -11,14 +11,12 @@ To install this package you just need to run the good old composer command that 
 composer require marqant-lab/marqant-pay-subscriptions 
 ```
 
-Next you will need to create the migrations to hook this package up to your database. Make sure to replace the `User` 
- model with whatever you use as billable. The rest of the values will be taken from the configuration of this package.
+Next you will need to create the migrations to hook this package up to your database. 
+All the values will be taken from the configuration of this package.
  You can overwrite them if you want to.
 
 ```shell script
-php artisan marqant-pay:migrations:subscriptions App\\User
-# or
-php artisan marqant-pay:migrations:subscriptions "App\\User"
+php artisan marqant-pay:migrations:subscriptions
 ```
 
 Now you can run your migrations as usual to finish up the installation.
