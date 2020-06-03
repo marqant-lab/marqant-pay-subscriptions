@@ -3,6 +3,7 @@
 namespace Marqant\MarqantPaySubscriptions\Mixins;
 
 use Illuminate\Database\Eloquent\Model;
+use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPay\Contracts\PaymentMethodContract;
 
 /**
@@ -27,7 +28,9 @@ class MarqantPaySubscriptionsMixin
         return function (Model $Billable, $Plan) {
             /**
              * @var \App\User $Billable
-             */ // if the setup uses a custom subscription handler, use
+             */
+
+            // if the setup uses a custom subscription handler, use
             // that instead of the one from the payment provider.
             $Gateway = config('marqant-pay-subscriptions.subscription_handler', false);
             if ($Gateway) {
@@ -188,6 +191,45 @@ class MarqantPaySubscriptionsMixin
             $Payment->update(['subscription' => true]);
 
             return $Payment;
+        };
+    }
+
+    /**
+     * Expose closure to cancel a subscription, that is not managed by a provider.
+     *
+     * @return \Closure
+     */
+    public static function unsubscribe(): \Closure
+    {
+        /**
+         * Cancel a subscription.
+         *
+         * @param \Illuminate\Database\Eloquent\Model $Billable
+         * @param                                     $Plan
+         *
+         * @return \Illuminate\Database\Eloquent\Model
+         */
+        return function (Model $Billable, $Plan): Model {
+            /**
+             * @var \App\User $Billable
+             */
+
+            // if the setup uses a custom subscription handler, use
+            // that instead of the one from the payment provider.
+            $Gateway = config('marqant-pay-subscriptions.subscription_handler', false);
+            if ($Gateway) {
+                $Gateway = app($Gateway);
+            }
+
+            $Plan = MarqantPay::resolvePlan($Plan);
+
+            // if the setup doesn't have a custom subscription provider, make
+            // use of the provider logic.
+            if (!$Gateway) {
+                $Gateway = self::resolveProviderGateway($Billable);
+            }
+
+            return $Gateway->unsubscribe($Billable, $Plan);
         };
     }
 

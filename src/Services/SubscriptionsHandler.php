@@ -4,6 +4,7 @@ namespace Marqant\MarqantPaySubscriptions\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Marqant\MarqantPaySubscriptions\Contracts\BillingCycleContract;
 use Marqant\MarqantPaySubscriptions\Contacts\SubscriptionsHandlerContract;
 
@@ -17,7 +18,7 @@ class SubscriptionsHandler extends SubscriptionsHandlerContract
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function subscribe(Model &$Billable, Model $Plan): Model
+    public function subscribe(Model $Billable, Model $Plan): Model
     {
         /**
          * @var \App\User $Billable
@@ -30,6 +31,37 @@ class SubscriptionsHandler extends SubscriptionsHandlerContract
             ]);
 
         // return the billable
+        return $Billable;
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model $Billable
+     * @param \Illuminate\Database\Eloquent\Model $Plan
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     * @throws \Exception
+     */
+    public function unsubscribe(Model $Billable, Model $Plan): Model
+    {
+        /**
+         * @var \App\User $Billable
+         */
+
+        // get the subscription if available
+        $Subscription = $Billable->subscriptions()
+            ->whereHas('plan', function (Builder $query) use ($Plan) {
+                $query->where('slug', $Plan->slug);
+            })
+            ->first();
+
+        // delete the subscription
+        if ($Subscription) {
+            $Subscription->delete();
+        }
+
+        // refresh model
+        $Billable->refresh();
+
         return $Billable;
     }
 

@@ -24,6 +24,18 @@ trait Subscribeable
     }
 
     /**
+     * Unsubscribe billable model from a plan.
+     *
+     * @param string $plan
+     *
+     * @return \Illuminate\Database\Eloquent\Model|$this
+     */
+    public function unsubscribe(string $plan): Model
+    {
+        return MarqantPay::unsubscribe($this, $plan);
+    }
+
+    /**
      * Charge the subscribeable/billable for a subscription.
      *
      * This method is used in the custom billing cycles.

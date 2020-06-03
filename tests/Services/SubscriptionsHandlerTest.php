@@ -274,4 +274,61 @@ class SubscriptionsHandlerTest extends MarqantPaySubscriptionsTestCase
         // attribute is set to today (and not null, and a carbon instance 😉)
         $this->assertNull($Subscription->last_charged);
     }
+
+    /**
+     * Test if we can subscribe a user to a plan without needing the provider.
+     *
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function test_unsubscribe_billable_without_provider(): void
+    {
+        /**
+         * @var \Marqant\MarqantPaySubscriptions\Models\Plan $Plan
+         * @var \App\User                                    $Billable
+         */
+        $SubscriptionHandler = \Marqant\MarqantPaySubscriptions\Services\SubscriptionsHandler::class;
+
+        // assert that the subscription handler in the current config is actually the one we just set
+        $this->assertEquals($SubscriptionHandler, config('marqant-pay-subscriptions.subscription_handler'));
+
+        // create plan model
+        $Plan = $this->createPlanModel();
+
+        // assert that the plan is created in our database
+        $this->assertNotNull($Plan->id);
+
+        // assert that the plan has no stripe attributes
+        $this->assertNull($Plan->stripe_id);
+        $this->assertNull($Plan->stripe_product);
+
+        // get billable
+        $Billable = $this->createBillableUser();
+
+        // subscribe billable to plan with given provider
+        $Billable->subscribe($Plan->slug);
+
+        // assert that billable is subscribed in our database
+        $this->assertCount(1, $Billable->subscriptions);
+
+        // assert that all values needed are stored in the database and valid
+        $Subscription = $Billable->subscriptions->first();
+        $this->assertEmpty($Subscription->stripe_id);
+        $this->assertEquals($Billable->id, $Subscription->billable_id);
+        $this->assertEquals($Plan->id, $Subscription->plan_id);
+
+        /////////////////////////////////////////////////////////////
+        // now that we have veryfied that the billable is signed up
+        // and everything, we can unsubscribe him
+
+        // unsubscribe the billable
+        $Billable->unsubscribe($Plan->slug);
+
+        // verify that there is no longer a subscription available
+        $Subscription = $Billable->subscriptions->first();
+        $this->assertNull($Subscription);
+    }
 }
