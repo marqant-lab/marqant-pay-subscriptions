@@ -53,6 +53,7 @@ class Monthly extends BillingCycleContract
 
                 // get subscriptions
                 $SubscriptionsOfBillable = $Billable->subscriptions()
+                    ->chargeable()
                     ->whereIn('plan_id', $Plans->pluck('id'))
                     ->get();
 

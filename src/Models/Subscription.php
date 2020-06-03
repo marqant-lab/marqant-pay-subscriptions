@@ -27,7 +27,7 @@ class Subscription extends MorphPivot
      * @var array
      */
     protected $casts = [
-        'last_charged',
+        'last_charged' => 'date',
     ];
 
 }

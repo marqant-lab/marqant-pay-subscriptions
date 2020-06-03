@@ -23,6 +23,8 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         $this->setupConfig();
 
         $this->setupMixins();
+
+        $this->setupRelationships();
     }
 
     /**
@@ -35,8 +37,6 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         $this->setupMigrations();
 
         $this->setupCommands();
-
-        $this->setupRelationships();
 
         $this->setupTranslations();
     }
@@ -163,8 +163,7 @@ class MarqantPaySubscriptionsServiceProvider extends ServiceProvider
         collect(config('marqant-pay.billables'))->each(function ($BillableModel) use ($PlanModel) {
             $BillableModel = app($BillableModel);
             if (!$this->checkIfModelIsBillable($BillableModel)) {
-                throw new \Exception('The given model '
-                    . get_class($BillableModel) . ' is not a Billable. Please make sure that it uses the Billable trait.');
+                throw new \Exception('The given model ' . get_class($BillableModel) . ' is not a Billable. Please make sure that it uses the Billable trait.');
             }
 
             /**

@@ -75,4 +75,18 @@ return [
         'monthly' => \Marqant\MarqantPaySubscriptions\BillingCycles\Monthly::class,
     ],
 
+    /*
+     |--------------------------------------------------------------------------
+     | Days before Charge.
+     |--------------------------------------------------------------------------
+     |
+     | Number of days until we charge the monthly subscription. Let's say, the
+     | user subscribes at the 10th of any month. At the first we charge the
+     | monthly plan. There we will have a check, that verifies that the
+     | subscription is older than the number of days set here.
+     |
+     */
+
+    'days_before_charge' => 26,
+
 ];

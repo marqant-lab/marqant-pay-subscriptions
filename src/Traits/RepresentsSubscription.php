@@ -4,6 +4,7 @@ namespace Marqant\MarqantPaySubscriptions\Traits;
 
 use Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Marqant\MarqantPay\Models\Relationships\BelongsToBillable;
 use Marqant\MarqantPaySubscriptions\Models\Relationships\BelongsToPlan;
 
@@ -52,5 +53,41 @@ trait RepresentsSubscription
         $this->last_charged = Carbon::now();
 
         return $this->save();
+    }
+
+    /**
+     * Scope to filter out subscriptions that are chargeable.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder $query
+     */
+    public function scopeChargeable(Builder $query)
+    {
+        $n = config('marqant-pay-subscriptions.days_before_charge');
+
+        $date = Carbon::now()
+            ->startOfDay()
+            ->subDays($n);
+
+        return $query->where('created_at', '<', $date);
+    }
+
+    /**
+     * Scope to filter out subscriptions that are not chargeable yet.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder $query
+     */
+    public function scopeNotChargeable(Builder $query)
+    {
+        $n = config('marqant-pay-subscriptions.days_before_charge');
+
+        $date = Carbon::now()
+            ->startOfDay()
+            ->subDays($n);
+
+        return $query->where('created_at', '<', $date);
     }
 }

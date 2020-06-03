@@ -25,7 +25,9 @@ class MarqantPaySubscriptionsMixin
          * @return \Illuminate\Database\Eloquent\Model
          */
         return function (Model $Billable, $Plan) {
-            // if the setup uses a custom subscription handler, use
+            /**
+             * @var \App\User $Billable
+             */ // if the setup uses a custom subscription handler, use
             // that instead of the one from the payment provider.
             $Gateway = config('marqant-pay-subscriptions.subscription_handler', false);
             if ($Gateway) {
@@ -41,6 +43,17 @@ class MarqantPaySubscriptionsMixin
             // resolve plan from string
             $Plan = self::resolvePlan($Plan);
 
+            // get subscription of already signed up
+            $Subscription = $Billable->subscriptions()
+                ->whereHas('plan', function ($query) use ($Plan) {
+                    $query->where('slug', $Plan->slug);
+                })
+                ->first();
+            if ($Subscription) {
+                return $Billable;
+            }
+
+            // only subscribe the billable entity if not assigned yet
             $Gateway->subscribe($Billable, $Plan);
 
             return $Billable;
