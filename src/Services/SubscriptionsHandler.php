@@ -4,7 +4,6 @@ namespace Marqant\MarqantPaySubscriptions\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Marqant\MarqantPaySubscriptions\Contracts\BillingCycleContract;
 use Marqant\MarqantPaySubscriptions\Contacts\SubscriptionsHandlerContract;
 
@@ -25,10 +24,12 @@ class SubscriptionsHandler extends SubscriptionsHandlerContract
          */
 
         // create local subscription with data from stripe
-        $Billable->subscriptions()
-            ->create([
-                'plan_id' => $Plan->id,
-            ]);
+        // $Billable->subscriptions()
+        //     ->create([
+        //         'plan_id' => $Plan->id,
+        //     ]);
+        $Billable->plans()
+            ->attach($Plan);
 
         // return the billable
         return $Billable;
@@ -47,17 +48,8 @@ class SubscriptionsHandler extends SubscriptionsHandlerContract
          * @var \App\User $Billable
          */
 
-        // get the subscription if available
-        $Subscription = $Billable->subscriptions()
-            ->whereHas('plan', function (Builder $query) use ($Plan) {
-                $query->where('slug', $Plan->slug);
-            })
-            ->first();
-
-        // delete the subscription
-        if ($Subscription) {
-            $Subscription->delete();
-        }
+        $Billable->plans()
+            ->detach($Plan);
 
         // refresh model
         $Billable->refresh();

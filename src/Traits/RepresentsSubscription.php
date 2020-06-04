@@ -21,13 +21,6 @@ trait RepresentsSubscription
     use BelongsToBillable;
 
     /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
      * Get the table associated with the model.
      *
      * @return string
