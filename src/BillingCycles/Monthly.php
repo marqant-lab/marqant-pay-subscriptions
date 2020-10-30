@@ -2,6 +2,8 @@
 
 namespace Marqant\MarqantPaySubscriptions\BillingCycles;
 
+use Log;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Marqant\MarqantPay\Services\MarqantPay;
 use Marqant\MarqantPaySubscriptions\Contacts\BillingCycleContract;
@@ -13,7 +15,7 @@ class Monthly extends BillingCycleContract
      *
      * @var string
      */
-    protected const BILLING_CYCLE = "monthly";
+    protected const BILLING_CYCLE = 'monthly';
 
     /**
      * Handle method to call when this billing cycle is triggered.
@@ -49,36 +51,40 @@ class Monthly extends BillingCycleContract
         // loop through the billing types and create the payments for each billable (see below)
         $BillablesByType->each(function ($Billables) use ($Plans) {
             $Billables->each(function ($Billable) use ($Plans) {
-                // TODO: Move the following into a dispatchable job
+                try {
+                    // TODO: Move the following into a dispatchable job
 
-                // get subscriptions
-                $SubscriptionsOfBillable = $Billable->subscriptions()
-                    ->chargeable()
-                    ->whereIn('plan_id', $Plans->pluck('id'))
-                    ->get();
+                    // get subscriptions
+                    $SubscriptionsOfBillable = $Billable->subscriptions()
+                        ->chargeable()
+                        ->whereIn('plan_id', $Plans->pluck('id'))
+                        ->get();
 
-                // get the plans of this billable
-                $PlansOfBillable = $Billable->plans()
-                    ->whereIn('plan_id', $Plans->pluck('id'))
-                    ->get();
+                    // get the plans of this billable
+                    $PlansOfBillable = $Billable->plans()
+                        ->whereIn('plan_id', $Plans->pluck('id'))
+                        ->get();
 
-                // sum the amounts of the plans related to this billable
-                // TODO: make use of the methods from Dimons trait
-                $amount = $PlansOfBillable->sum('amount');
+                    // sum the amounts of the plans related to this billable
+                    // TODO: make use of the methods from Dimons trait
+                    $amount = $PlansOfBillable->sum('amount');
 
-                // get description from translation file
-                $description = trans('marqant-pay-subscriptions::billing.description');
+                    // get description from translation file
+                    $description = trans('marqant-pay-subscriptions::billing.description');
 
-                // charge the billable once, with the total amount from all the plans he is subscribed to
-                $Billable->chargeSubscription($amount, $description);
+                    // charge the billable once, with the total amount from all the plans he is subscribed to
+                    $Billable->chargeSubscription($amount, $description);
 
-                // touch the subscriptions
-                $SubscriptionsOfBillable->each(function (\Illuminate\Database\Eloquent\Model $Subscription) {
-                    /**
-                     * @var \Marqant\MarqantPaySubscriptions\Models\Subscription $Subscription
-                     */
-                    $Subscription->touchLastCharged();
-                });
+                    // touch the subscriptions
+                    $SubscriptionsOfBillable->each(function (\Illuminate\Database\Eloquent\Model $Subscription) {
+                        /**
+                         * @var \Marqant\MarqantPaySubscriptions\Models\Subscription $Subscription
+                         */
+                        $Subscription->touchLastCharged();
+                    });
+                } catch (Exception $Exception) {
+                    Log::debug($Exception->getMessage());
+                }
             });
         });
     }
