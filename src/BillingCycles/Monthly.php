@@ -83,7 +83,15 @@ class Monthly extends BillingCycleContract
                         $Subscription->touchLastCharged();
                     });
                 } catch (Exception $Exception) {
-                    Log::debug($Exception->getMessage());
+                    $subject = 'Failed Subscription';
+
+                    $data = [
+                        'billable_id'       => $Billable->id,
+                        'billable_type'     => get_class($Billable),
+                        'exception_message' => $Exception->getMessage()
+                    ];
+
+                    Log::debug($subject, $data);
                 }
             });
         });
