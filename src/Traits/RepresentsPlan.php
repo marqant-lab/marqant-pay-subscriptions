@@ -55,6 +55,16 @@ trait RepresentsPlan
         $this->attributes['amount'] = $value * 100;
     }
 
+    /**
+     * Get the raw amount from the database as integer.
+     *
+     * @return int
+     */
+    public function getAmountRawAttribute(): int
+    {
+        return $this->attributes['amount'];
+    }
+
     /*
      |--------------------------------------------------------------------------
      | Scopes

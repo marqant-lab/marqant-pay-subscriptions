@@ -10,10 +10,11 @@
         }
     ],
     "require": {
-        "marqant-lab/marqant-pay": "~0.0.1"
+        "marqant-lab/marqant-pay": "~0.1.0"
     },
     "autoload": {
         "psr-4": {
+            "Marqant\\MarqantPaySubscriptions\\Factories\\": "database/factories/",
             "Marqant\\MarqantPaySubscriptions\\Seeds\\": "database/seeds/",
             "Marqant\\MarqantPaySubscriptions\\": "src/"
         }
